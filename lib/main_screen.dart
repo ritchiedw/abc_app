@@ -28,11 +28,15 @@ class MainScreen extends StatelessWidget {
           children: <Widget>[
             FlatButton(
               child: Text("Report It"),
-              onPressed: () {},
+              onPressed: () {
+                print("Report It");
+              },
             ),
             FlatButton(
               child: Text("Request It"),
-              onPressed: () {},
+              onPressed: () {
+                print("Request It");
+              },
             ),
             FlatButton(
               child: Text("Pay It"),

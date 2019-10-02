@@ -110,12 +110,26 @@ class _MainScreenState extends State<MainScreen> {
   Widget binDetails() {
     List<String> details = binData.split(',');
     List<String> condensed;
+    String temp = '';
 
+    for(int i = 0; i<details.length; i++) {
+      if(i%2 == 0) {
+        temp += details[i];
+      } else {
+        condensed.add(temp += ': ${details[i]}');
+        temp = '';
+      }
+    }
     //return Column(
     //  children: <Widget>[],
     //); //Container(Text(binData));
-    return ListView.builder(
-      itemCount: 3,
+    return Expanded( 
+      child: ListView.builder(
+        itemCount: condensed.length,
+        itemBuilder: (BuildContext ctxt, int index) {
+          return new Text(condensed.elementAt(index));
+        },
+      ),
     );
   }
 

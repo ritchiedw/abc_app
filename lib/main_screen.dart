@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
 
-class MainScreen extends StatelessWidget {
+import 'address.dart';
+import 'bin_route.dart';
+
+class MainScreen extends StatefulWidget {
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  String postCode;
+  String selectedUPRN;
+  Map<String, String> uprnAddress = {};
+  String binData = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,21 +39,107 @@ class MainScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            FlatButton(
-              child: Text("Report It"),
-              onPressed: () {},
+            Container(
+              alignment: Alignment.center,
+              child: Text(
+                "Postcode",
+                style: TextStyle(fontSize: 30.0),
+              ),
+            ),
+            //PostcodeSearch(),
+            TextField(
+              textAlign: TextAlign.center,
+              onChanged: (newPostcode) {
+                print(newPostcode);
+                postCode = newPostcode;
+              },
             ),
             FlatButton(
-              child: Text("Request It"),
-              onPressed: () {},
+              onPressed: () {
+                print("Search Postcode");
+                getData();
+              },
+              child: Text("Search Postcode"),
+              color: Color(0xff1db15b),
             ),
-            FlatButton(
-              child: Text("Pay It"),
-              onPressed: () {},
+            Container(
+              height: 50.0,
+              alignment: Alignment.center,
+              padding: EdgeInsets.only(bottom: 10.0),
+              color: Colors.lightBlue,
+              child: androidDropdown(),
+            ),
+            Container(
+              height: 150.0,
+              alignment: Alignment.center,
+              padding: EdgeInsets.only(bottom: 10.0),
+              child: binDetails(),
             ),
           ],
         ),
       ),
     );
+  }
+
+  DropdownButton<String> androidDropdown() {
+    print('androidDropdown');
+    List<DropdownMenuItem<String>> dropdownItems = [];
+    uprnAddress.forEach((k, v) {
+      var newItem = DropdownMenuItem(
+        child: Text(v),
+        value: k,
+      );
+      dropdownItems.add(newItem);
+    });
+
+    return DropdownButton<String>(
+      value: selectedUPRN,
+      items: dropdownItems,
+      onChanged: (value) {
+        setState(() {
+          selectedUPRN = value;
+          print("dropdown button set state");
+          //getData();
+          getBinData();
+          //savePreference();
+        });
+      },
+    );
+  }
+
+  Widget binDetails() {
+    List<String> details = binData.split(',');
+    List<String> condensed;
+
+    //return Column(
+    //  children: <Widget>[],
+    //); //Container(Text(binData));
+    return ListView.builder(
+      itemCount: 3,
+    );
+  }
+
+  void getBinData() async {
+    BinRoute binRoute = BinRoute();
+    binData = await binRoute.getBinRouteFromUPRN(selectedUPRN);
+    setState(() {});
+  }
+
+  void getData() async {
+    //Map<String, String> uprnAddress = {};
+    Address address = Address();
+    List<dynamic> addressList = await address.getAddressFromPostcode(postCode);
+    //print(addressList);
+    print(addressList[0]);
+    selectedUPRN = addressList[0]['attributes']['UPRN'];
+    addressList.forEach((element) {
+      print(element['attributes']['ADDRESS']);
+      print(element['attributes']['UPRN']);
+      String uprn = element['attributes']['UPRN'];
+      String someAddress = element['attributes']['ADDRESS'];
+      uprnAddress.putIfAbsent(uprn, () => someAddress.substring(0, 30));
+    });
+    setState(() {});
+    print(uprnAddress);
   }
 }

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
 
+import 'bin_tile.dart';
+
 class BinRoute {
 //https://ssdlive.argyll-bute.gov.uk:8443/binuplift/api/web/properties/uprn/000125029348
   String $responseXML = """
@@ -46,17 +48,20 @@ class BinRoute {
 
     //document.
 
-    String output = "";
+    //String output = "";
+    List<BinTile> output = List();
 
     items.forEach((node) {
       print("foreach\n");
       var wastetype = node.findElements('wastetype');
       var collectiondate = node.findElements('collectiondate');
       print(wastetype.first.text);
-      output += '${wastetype.first.text},${collectiondate.first.text},';
+      //output += '${wastetype.first.text},${collectiondate.first.text},';
+      output.add(BinTile(
+        binTitle: wastetype.first.text,
+        binDate: collectiondate.first.text,
+      ));
     });
-
-    print(output);
 
     return Future.delayed(Duration(seconds: 1), () => output);
   }

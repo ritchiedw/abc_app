@@ -1,3 +1,4 @@
+import 'package:abc_app/bin_tile.dart';
 import 'package:flutter/material.dart';
 
 import 'address.dart';
@@ -12,7 +13,8 @@ class _MainScreenState extends State<MainScreen> {
   String postCode;
   String selectedUPRN;
   Map<String, String> uprnAddress = {};
-  String binData = "";
+  //String binData = "";
+  List<BinTile> binData = List();
 
   @override
   Widget build(BuildContext context) {
@@ -108,28 +110,43 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget binDetails() {
-    List<String> details = binData.split(',');
-    List<String> condensed;
-    String temp = '';
-
-    for(int i = 0; i<details.length; i++) {
-      if(i%2 == 0) {
-        temp += details[i];
-      } else {
-        condensed.add(temp += ': ${details[i]}');
-        temp = '';
-      }
+    print('binDetails');
+    print(binData.runtimeType);
+    if (binData == null || binData == '') {
+      return Container();
     }
+
+    //List<String> details = binData.split(',');
+    //List<String> condensed = List();
+    //String temp = '';
+
+    //for (int i = 0; i < details.length; i++) {
+    //  if (i % 2 == 0) {
+    //    temp += details[i];
+    //  } else {
+    //    condensed.add(temp += ': ${details[i]}');
+    //    temp = '';
+    //  }
+    //}
     //return Column(
     //  children: <Widget>[],
     //); //Container(Text(binData));
-    return Expanded( 
-      child: ListView.builder(
-        itemCount: condensed.length,
-        itemBuilder: (BuildContext ctxt, int index) {
-          return new Text(condensed.elementAt(index));
-        },
-      ),
+    return Flex(
+      direction: Axis.vertical,
+      children: <Widget>[
+        Expanded(
+          child: ListView.builder(
+            itemCount: binData.length,
+            itemBuilder: (BuildContext ctxt, int index) {
+              //return new Text(condensed.elementAt(index));
+              return ListTile(
+                title: Text(binData.elementAt(index).binTitle),
+                subtitle: Text(binData.elementAt(index).binDate),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 

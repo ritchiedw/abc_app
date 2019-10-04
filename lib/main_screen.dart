@@ -1,5 +1,6 @@
 import 'package:abc_app/bin_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'address.dart';
 import 'bin_route.dart';
@@ -18,64 +19,118 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(
-          0xff017cc1,
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          tooltip: 'Navigation menu',
-          onPressed: null,
-        ),
-        title: Text('Argyll and Bute Council'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.search),
-            tooltip: 'Search',
+    String savedPostcode;
+    TextEditingController tec = TextEditingController();
+    //tec.addListener(() => {});
+    Future<String> savedPostcodeFuture = getDetails('postCode');
+    savedPostcodeFuture.then((savedPostcodeFuture) {
+      print(savedPostcodeFuture);
+      if (savedPostcodeFuture != 'Not Defined') {
+        tec.text = savedPostcodeFuture;
+      }
+    });
+
+    return DefaultTabController(
+      length: 1,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Color(
+            0xff017cc1,
+          ),
+          leading: IconButton(
+            icon: Icon(Icons.menu),
+            tooltip: 'Navigation menu',
             onPressed: null,
           ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Container(
-              alignment: Alignment.center,
-              child: Text(
-                "Postcode",
-                style: TextStyle(fontSize: 30.0),
+          title: Text('Argyll and Bute Council'),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.search),
+              tooltip: 'Search',
+              onPressed: null,
+            ),
+          ],
+          bottom: TabBar(
+            tabs: <Widget>[
+              Tab(
+                icon: Icon(Icons.delete),
               ),
-            ),
-            //PostcodeSearch(),
-            TextField(
-              textAlign: TextAlign.center,
-              onChanged: (newPostcode) {
-                print(newPostcode);
-                postCode = newPostcode;
-              },
-            ),
-            FlatButton(
-              onPressed: () {
-                print("Search Postcode");
-                getData();
-              },
-              child: Text("Search Postcode"),
-              color: Color(0xff1db15b),
-            ),
-            Container(
-              height: 50.0,
-              alignment: Alignment.center,
-              padding: EdgeInsets.only(bottom: 10.0),
-              color: Colors.lightBlue,
-              child: androidDropdown(),
-            ),
-            Container(
-              height: 150.0,
-              alignment: Alignment.center,
-              padding: EdgeInsets.only(bottom: 10.0),
-              child: binDetails(),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: <Widget>[
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    "Bin Calendar Lookup Page",
+                    style: TextStyle(
+                      fontSize: 20.0,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: TextField(
+                      controller: tec,
+                      textAlign: TextAlign.center,
+                      onChanged: (newPostcode) {
+                        print(newPostcode);
+                        postCode = newPostcode;
+                      },
+                      style: TextStyle(color: Colors.black),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.blueGrey[50],
+                        //icon: Icon(
+                        //  Icons.location_searching,
+                        //  color: Colors.white,
+                        //),
+                        hintText: "Enter Postcode",
+                        hintStyle: TextStyle(
+                          color: Colors.grey,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(10.0),
+                          ),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                  FlatButton(
+                    onPressed: () {
+                      print("Search Postcode");
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      getData();
+                      savePreference("postCode", postCode);
+                    },
+                    child: Text("Search Postcode"),
+                    color: Color(0xff1db15b),
+                  ),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Container(
+                    height: 50.0,
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.only(bottom: 10.0),
+                    //color: Colors.lightBlue,
+                    child: androidDropdown(),
+                  ),
+                  Expanded(
+                    //height: 150.0,
+                    //alignment: Alignment.center,
+                    //padding: EdgeInsets.only(bottom: 10.0),
+                    child: binDetails(),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -107,6 +162,18 @@ class _MainScreenState extends State<MainScreen> {
         });
       },
     );
+  }
+
+  void savePreference(String name, String value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(name, value);
+  }
+
+  Future<String> getDetails(String name) async {
+    print("getDetails()");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String detail = prefs.getString('firstName') ?? 'Not Defined';
+    return detail;
   }
 
   Widget binDetails() {

@@ -16,19 +16,38 @@ class _MainScreenState extends State<MainScreen> {
   Map<String, String> uprnAddress = {};
   //String binData = "";
   List<BinTile> binData = List();
+  TextEditingController tec = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    print("initState");
+    doAsyncInitStuff();
+  }
+
+  void doAsyncInitStuff() {
+    print("doAsyncInitStuff");
+    Future<String> savedPostcodeFuture = getPreference('postCode');
+    savedPostcodeFuture.then((result) {
+      if (result != 'Not Defined') {
+        tec.text = result;
+        postCode = result;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     String savedPostcode;
-    TextEditingController tec = TextEditingController();
+
     //tec.addListener(() => {});
-    Future<String> savedPostcodeFuture = getDetails('postCode');
-    savedPostcodeFuture.then((savedPostcodeFuture) {
-      print(savedPostcodeFuture);
-      if (savedPostcodeFuture != 'Not Defined') {
-        tec.text = savedPostcodeFuture;
-      }
-    });
+    //Future<String> savedPostcodeFuture = getPreference('postCode');
+    //savedPostcodeFuture.then((savedPostcodeFuture) {
+    //  print(savedPostcodeFuture);
+    //  if (savedPostcodeFuture != 'Not Defined') {
+    //    tec.text = savedPostcodeFuture;
+    //  }
+    //});
 
     return DefaultTabController(
       length: 1,
@@ -169,10 +188,10 @@ class _MainScreenState extends State<MainScreen> {
     await prefs.setString(name, value);
   }
 
-  Future<String> getDetails(String name) async {
+  Future<String> getPreference(String name) async {
     print("getDetails()");
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String detail = prefs.getString('firstName') ?? 'Not Defined';
+    String detail = prefs.getString(name) ?? 'Not Defined';
     return detail;
   }
 
